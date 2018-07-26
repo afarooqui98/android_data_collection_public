@@ -25,6 +25,7 @@ public class MainActivity extends AppCompatActivity {
         setContentView(R.layout.activity_main);
         mDataCollector = new DataCollector(getCtx());
         mServiceIntent = new Intent(getCtx(), mDataCollector.getClass());
+        Log.i("MAINACT", "onCreate, Service about to start");
         if (!isMyServiceRunning()) {
             startService(mServiceIntent);
         }

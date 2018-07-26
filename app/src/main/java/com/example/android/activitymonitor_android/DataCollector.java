@@ -12,6 +12,9 @@ public class DataCollector extends Service {
         super();
         Log.i("DataCollector", "obj created");
     }
+    public DataCollector() {
+        
+    }
 
     @Override
     public IBinder onBind(Intent intent) {
