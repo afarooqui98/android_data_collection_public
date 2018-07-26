@@ -30,6 +30,7 @@ public class MainActivity extends AppCompatActivity {
         }
     }
 
+    //TODO: check if Service is running
     private boolean isMyServiceRunning() {
         return false;
     }

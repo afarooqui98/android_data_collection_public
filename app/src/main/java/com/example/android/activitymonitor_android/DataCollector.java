@@ -26,5 +26,11 @@ public class DataCollector extends Service {
     }
 
     @Override
-    public void onDestroy()
+    public void onDestroy() {
+        super.onDestroy();
+        Log.i("onDestroy");
+        //TODO: Broadcast Intent to restart service
+    }
+
+    //TODO: track foreground applications here
 }
