@@ -1,6 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
     package="com.example.android.activitymonitor_android">
+    <!-- TODO: change package name -->
 
     <application
         android:allowBackup="true"
@@ -23,12 +24,9 @@
         </service>
 
         <receiver
-            android:name=".BroadcastReceiver_RestartService"
-            android:enabled="true"
-            android:exported="true"
-            android:label="RestartServiceWhenStopped">
+            android:name=".BroadcastReceiver_RestartService">
             <intent-filter>
-                <action android:name="Restart_DataCollector"/>
+                <action android:name="com.example.android.activitymonitor_android.Restart_DataCollector"/>
             </intent-filter>
         </receiver>
     </application>

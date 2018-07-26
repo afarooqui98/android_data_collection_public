@@ -31,7 +31,7 @@ public class DataCollector extends Service {
     public void onDestroy() {
         super.onDestroy();
         Log.i("DataCollector", "onDestroy");
-        Intent broadcastIntent = new Intent("Restart_DataCollector");
+        Intent broadcastIntent = new Intent("com.example.android.activitymonitor_android.Restart_DataCollector");
         sendBroadcast(broadcastIntent);
     }
 
