@@ -13,7 +13,7 @@ public class DataCollector extends Service {
         Log.i("DataCollector", "obj created");
     }
     public DataCollector() {
-        
+
     }
 
     @Override
