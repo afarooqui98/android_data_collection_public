@@ -16,10 +16,21 @@
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
+
         <service
             android:name=".DataCollector"
             android:enabled="true" >
         </service>
+
+        <receiver
+            android:name=".BroadcastReceiver_RestartService"
+            android:enabled="true"
+            android:exported="true"
+            android:label="RestartServiceWhenStopped">
+            <intent-filter>
+                <action android:name="Restart_DataCollector"/>
+            </intent-filter>
+        </receiver>
     </application>
 
 </manifest>

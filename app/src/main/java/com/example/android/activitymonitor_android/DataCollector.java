@@ -31,7 +31,8 @@ public class DataCollector extends Service {
     public void onDestroy() {
         super.onDestroy();
         Log.i("DataCollector", "onDestroy");
-        //TODO: Broadcast Intent to restart service
+        Intent broadcastIntent = new Intent("Restart_DataCollector");
+        sendBroadcast(broadcastIntent);
     }
 
     //TODO: track foreground applications here
