@@ -9,7 +9,7 @@ import android.util.Log;
 
 public class MainActivity extends AppCompatActivity {
     Intent mServiceIntent;
-    private SensorService mSensorService;
+    private DataCollector mDataCollector;
 
     Context ctx;
 
@@ -37,7 +37,7 @@ public class MainActivity extends AppCompatActivity {
 
     @Override
     protected void onDestroy() {
-        stopService(mServiceIntent);
+        stopService(mServiceIntent); // Service must restart itself with broadcast
         Log.i("MAINACT", "onDestroy!");
         super.onDestroy();
     }

@@ -10,7 +10,7 @@ import android.util.Log;
 public class DataCollector extends Service {
     public DataCollector(Context appContext) {
         super();
-        Log.i("Service created")
+        Log.i("DataCollector Service created");
     }
     /*
     @Override
@@ -22,13 +22,13 @@ public class DataCollector extends Service {
     public int onStartCommand(Intent intent, int flags, int startId) {
         super.onStartCommand(intent, flags, startId);
         startTimer();
-        return START_STICKY; //Will keep running after process is killed
+        return START_STICKY; //Will re-create after process is killed
     }
 
     @Override
     public void onDestroy() {
         super.onDestroy();
-        Log.i("onDestroy");
+        Log.i("DataCollector", "onDestroy");
         //TODO: Broadcast Intent to restart service
     }
 
