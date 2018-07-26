@@ -26,13 +26,30 @@ public class MainActivity extends AppCompatActivity {
         mDataCollector = new DataCollector(getCtx());
         mServiceIntent = new Intent(getCtx(), mDataCollector.getClass());
         Log.i("MAINACT", "onCreate, Service about to start");
-        if (!isMyServiceRunning()) {
+        if (!isMyServiceRunning(DataCollector.class)) {
             startService(mServiceIntent);
         }
     }
 
+    @Override
+    protected void onResume(){
+        super.onResume();
+        if (!isMyServiceRunning(DataCollector.class)) {
+            Log.e("Test", "service not running");
+        }
+        else{
+            Log.e("Test", "service running");
+        }
+    }
+
     //TODO: check if Service is running
-    private boolean isMyServiceRunning() {
+    private boolean isMyServiceRunning(Class<?> serviceClass) {
+        ActivityManager manager = (ActivityManager) getSystemService(Context.ACTIVITY_SERVICE);
+        for (ActivityManager.RunningServiceInfo service : manager.getRunningServices(Integer.MAX_VALUE)) {
+            if (serviceClass.getName().equals(service.service.getClassName())) {
+                return true;
+            }
+        }
         return false;
     }
 
