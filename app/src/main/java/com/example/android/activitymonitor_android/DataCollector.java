@@ -7,8 +7,8 @@ import android.os.IBinder;
 import android.support.annotation.Nullable;
 import android.util.Log;
 
-public class DataCollection extends Service {
-    public DataCollection(Context appContext) {
+public class DataCollector extends Service {
+    public DataCollector(Context appContext) {
         super();
         Log.i("Service created")
     }
@@ -24,4 +24,7 @@ public class DataCollection extends Service {
         startTimer();
         return START_STICKY; //Will keep running after process is killed
     }
+
+    @Override
+    public void onDestroy()
 }
