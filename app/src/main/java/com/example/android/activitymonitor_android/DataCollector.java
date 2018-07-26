@@ -10,18 +10,17 @@ import android.util.Log;
 public class DataCollector extends Service {
     public DataCollector(Context appContext) {
         super();
-        Log.i("DataCollector Service created");
+        Log.i("DataCollector", "obj created");
     }
-    /*
+
     @Override
     public IBinder onBind(Intent intent) {
         return null;
     }
-    */
+
     @Override
     public int onStartCommand(Intent intent, int flags, int startId) {
         super.onStartCommand(intent, flags, startId);
-        startTimer();
         return START_STICKY; //Will re-create after process is killed
     }
 
