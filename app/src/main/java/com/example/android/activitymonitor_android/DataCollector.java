@@ -24,14 +24,14 @@ public class DataCollector extends Service {
 
     @Override
     public void onCreate() {
-        // TODO: Create the dictionary for storing data.
+        // TODO: Create/allocate space for the dictionary for storing application runtimes.
     }
 
     @Override
     public int onStartCommand(Intent intent, int flags, int startId) {
         super.onStartCommand(intent, flags, startId);
         onHandleWork(intent);
-        return START_NOT_STICKY; //Will re-create after process is killed
+        return START_STICKY; //Will re-create after process is killed
 
     }
 
@@ -43,7 +43,7 @@ public class DataCollector extends Service {
         super.onDestroy();
     }
 
-    //TODO: track foreground applications here
+    //TODO: implement observer
         //Possible use get context or refresh to receive app data
     protected void onHandleWork(Intent workIntent) {
         Log.e("test", "reached");
@@ -60,8 +60,7 @@ public class DataCollector extends Service {
         }
         // this is the polling implementation: couldn't find a viable way of doing it without polling
 
-        //TODO: this needs to be in a separate thread, or we will be stuck in the loop and \
-        //application close will not be detected. Was it intentService?
+        //TODO: this needs to be in a separate thread, or we will be stuck in the loop and application close will not be detected. Was it intentService?
         do{
             // introduce some type of time delay here
             if (android.os.Build.VERSION.SDK_INT < 20) {
