@@ -24,7 +24,7 @@
         </service>
 
         <receiver
-            android:name=".Restart_DataCollector"
+            android:name=".BroadcastRec_DataCollector"
             android:enabled="true" >
             <intent-filter>
                 <action android:name="com.example.android.activitymonitor_android.Restart_DataCollector"/>

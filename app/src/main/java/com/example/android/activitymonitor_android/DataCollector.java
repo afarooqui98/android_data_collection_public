@@ -23,10 +23,15 @@ public class DataCollector extends Service {
     }
 
     @Override
+    public void onCreate() {
+        // TODO: Create the dictionary for storing data.
+    }
+
+    @Override
     public int onStartCommand(Intent intent, int flags, int startId) {
         super.onStartCommand(intent, flags, startId);
-        //onHandleWork(intent);
-        return START_STICKY; //Will re-create after process is killed
+        onHandleWork(intent);
+        return START_NOT_STICKY; //Will re-create after process is killed
 
     }
 
@@ -55,7 +60,8 @@ public class DataCollector extends Service {
         }
         // this is the polling implementation: couldn't find a viable way of doing it without polling
 
-        //TODO: this needs to be in a separate thread, or application close will not be detected. Was it intentService?
+        //TODO: this needs to be in a separate thread, or we will be stuck in the loop and \
+        //application close will not be detected. Was it intentService?
         do{
             // introduce some type of time delay here
             if (android.os.Build.VERSION.SDK_INT < 20) {
@@ -66,8 +72,8 @@ public class DataCollector extends Service {
                 ActivityManager.RunningAppProcessInfo foreTask = actMan.getRunningAppProcesses().get(0);
                 newTaskPackageName = foreTask.processName;
             }
-            // TODO: print out the foreground process name instead of "went through loop"
-            Log.i("DataCollector", "went through loop");
+            // TODO: print out the foreground process name instead of "went through loop". After dictionary is created, write to that as well.
+            Log.i("DataCollector",  newTaskPackageName);
             // TODO: sleep for 10 secs. Do not use thread.sleep. Try: ScheduledExecutorService and either scheduleAtFixedRate or scheduleWithFixedDelay.
         }while(newTaskPackageName.equals(foregroundTaskPackageName));
 
