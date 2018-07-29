@@ -25,16 +25,9 @@ public class DataCollector extends Service {
     @Override
     public int onStartCommand(Intent intent, int flags, int startId) {
         super.onStartCommand(intent, flags, startId);
-        onHandleWork(intent);
+        //onHandleWork(intent);
         return START_STICKY; //Will re-create after process is killed
 
-    }
-    @Override
-    public void stopSelf() {
-        super.onDestroy();
-        Log.i("DataCollector", "stopSelf");
-        Intent broadcastIntent = new Intent("com.example.android.activitymonitor_android.Restart_DataCollector");
-        sendBroadcast(broadcastIntent);
     }
 
     @Override
