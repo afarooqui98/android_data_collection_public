@@ -29,6 +29,13 @@ public class DataCollector extends Service {
         return START_STICKY; //Will re-create after process is killed
 
     }
+    @Override
+    public void stopSelf() {
+        super.onDestroy();
+        Log.i("DataCollector", "stopSelf");
+        Intent broadcastIntent = new Intent("com.example.android.activitymonitor_android.Restart_DataCollector");
+        sendBroadcast(broadcastIntent);
+    }
 
     @Override
     public void onDestroy() {
@@ -55,6 +62,7 @@ public class DataCollector extends Service {
         }
         // this is the polling implementation: couldn't find a viable way of doing it without polling
 
+        //TODO: this needs to be in a separate thread, or application close will not be detected.
         do{
             // introduce some type of time delay here
             if (android.os.Build.VERSION.SDK_INT < 20) {
@@ -65,10 +73,12 @@ public class DataCollector extends Service {
                 ActivityManager.RunningAppProcessInfo foreTask = actMan.getRunningAppProcesses().get(0);
                 newTaskPackageName = foreTask.processName;
             }
+            // TODO: print out the foreground process name instead of "went through loop"
             Log.i("DataCollector", "went through loop");
+            // TODO: sleep for 10 secs. Do not use thread.sleep. Try: ScheduledExecutorService and either scheduleAtFixedRate or scheduleWithFixedDelay.
         }while(newTaskPackageName.equals(foregroundTaskPackageName));
 
         // This is where we "return" since the foreground app has now changed
-        Log.i("DataCollector", "foreground app changed");
+        Log.e("DataCollector", "foreground app changed");
     }
 }

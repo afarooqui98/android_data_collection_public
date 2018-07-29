@@ -55,7 +55,7 @@ public class MainActivity extends AppCompatActivity {
 
     @Override
     protected void onDestroy() {
-        stopService(mServiceIntent); // Service must restart itself with broadcast
+        stopService(mServiceIntent); // Calls DataCollector.stopSelf().
         Log.i("MAINACT", "onDestroy");
         super.onDestroy();
     }
