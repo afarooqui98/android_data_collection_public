@@ -32,10 +32,10 @@ public class DataCollector extends Service {
 
     @Override
     public void onDestroy() {
-        super.onDestroy();
         Log.i("DataCollector", "onDestroy");
         Intent broadcastIntent = new Intent("com.example.android.activitymonitor_android.Restart_DataCollector");
         sendBroadcast(broadcastIntent);
+        super.onDestroy();
     }
 
     //TODO: track foreground applications here
