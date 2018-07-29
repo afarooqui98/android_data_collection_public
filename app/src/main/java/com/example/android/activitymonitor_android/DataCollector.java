@@ -55,7 +55,7 @@ public class DataCollector extends Service {
         }
         // this is the polling implementation: couldn't find a viable way of doing it without polling
 
-        //TODO: this needs to be in a separate thread, or application close will not be detected.
+        //TODO: this needs to be in a separate thread, or application close will not be detected. Was it intentService?
         do{
             // introduce some type of time delay here
             if (android.os.Build.VERSION.SDK_INT < 20) {
