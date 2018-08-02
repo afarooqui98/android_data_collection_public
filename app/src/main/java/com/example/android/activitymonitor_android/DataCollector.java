@@ -8,13 +8,16 @@ import android.os.IBinder;
 import android.support.annotation.Nullable;
 import android.util.Log;
 
-public class DataCollector extends Service {
+import java.util.List;
+import java.util.Observable;
+import java.util.Observer;
+
+public class DataCollector extends Service{
     public DataCollector(Context appContext) {
         super();
         Log.i("DataCollector", "obj created");
     }
     public DataCollector() {
-
     }
 
     @Override
@@ -57,6 +60,7 @@ public class DataCollector extends Service {
 
         do{
             // introduce some type of time delay here
+
             if (android.os.Build.VERSION.SDK_INT < 20) {
                 ActivityManager.RunningTaskInfo foreTask = actMan.getRunningTasks(1).get(0);
                 newTaskPackageName = foreTask.topActivity.getPackageName();
@@ -68,7 +72,16 @@ public class DataCollector extends Service {
             Log.i("DataCollector", "went through loop");
         }while(newTaskPackageName.equals(foregroundTaskPackageName));
 
+        ActivityManager actvityManager = (ActivityManager)
+                this.getSystemService( ACTIVITY_SERVICE );
+        List<ActivityManager.RunningAppProcessInfo> procInfos = actvityManager.getRunningAppProcesses();
+
+        for(ActivityManager.RunningAppProcessInfo runningProInfo:procInfos){
+
+            Log.d("Running Processes", "()()"+runningProInfo.processName);
+        }
         // This is where we "return" since the foreground app has now changed
         Log.i("DataCollector", "foreground app changed");
     }
 }
+

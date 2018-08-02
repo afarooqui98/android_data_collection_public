@@ -7,10 +7,13 @@ import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;
 import android.util.Log;
 
-public class MainActivity extends AppCompatActivity {
+import java.util.Observable;
+import java.util.Observer;
+
+public class MainActivity extends AppCompatActivity implements Observer{
     Intent mServiceIntent;
     private DataCollector mDataCollector;
-
+    BaseApp myBase;
     Context ctx;
 
     public Context getCtx() {
@@ -25,6 +28,10 @@ public class MainActivity extends AppCompatActivity {
         setContentView(R.layout.activity_main);
         mDataCollector = new DataCollector(getCtx());
         mServiceIntent = new Intent(getCtx(), mDataCollector.getClass());
+
+        myBase = (BaseApp) getApplication();
+        myBase.getObserver().addObserver(this);
+
         Log.i("MAINACT", "onCreate, Service about to start");
         if (!isMyServiceRunning(DataCollector.class)) {
             startService(mServiceIntent);
@@ -42,6 +49,10 @@ public class MainActivity extends AppCompatActivity {
         }
     }
 
+    public void update(Observable observable, Object data){
+        Log.e("Notification", myBase.getObserver().getValue());
+    }
+
     //TODO: check if Service is running
     private boolean isMyServiceRunning(Class<?> serviceClass) {
         ActivityManager manager = (ActivityManager) getSystemService(Context.ACTIVITY_SERVICE);
@@ -51,6 +62,11 @@ public class MainActivity extends AppCompatActivity {
             }
         }
         return false;
+    }
+
+    public void onPause(){
+        super.onPause();
+        myBase.getObserver().setValue("After Value Changed!");
     }
 
     @Override
