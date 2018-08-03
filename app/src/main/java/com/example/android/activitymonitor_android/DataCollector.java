@@ -69,6 +69,7 @@ public class DataCollector extends IntentService {
         }catch(InterruptedException ex){
             //do stuff
         }
+        // newActMan goes out of scope anyway. 
         do{
 
             ActivityManager newActMan = (ActivityManager) this.getSystemService(Context.ACTIVITY_SERVICE);
