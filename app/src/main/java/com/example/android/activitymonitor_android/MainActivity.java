@@ -58,7 +58,7 @@ public class MainActivity extends AppCompatActivity{
         mServiceIntent = new Intent(getCtx(), mDataCollector.getClass());
 
 
-        Log.i("MAINACT", "onCreate, Service about to start");
+        Log.i("MAINACT", "onPause, Service about to start");
         if (!isMyServiceRunning(DataCollector.class)) {
             startService(mServiceIntent);
         }

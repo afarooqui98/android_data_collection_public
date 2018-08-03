@@ -55,7 +55,7 @@ public class DataCollector extends Service implements Observer{
     //TODO: track foreground applications here
         //Possible use get context or refresh to receive app data
     protected void onHandleWork(Intent workIntent) {
-        Log.e("test", "reached");
+        Log.e("DataCollector", "onHandleWork");
 //        String foregroundTaskPackageName;
 //        String newTaskPackageName;
 //        ActivityManager actMan = (ActivityManager) this.getSystemService(Context.ACTIVITY_SERVICE);
@@ -99,7 +99,7 @@ public class DataCollector extends Service implements Observer{
         }, 10000);
 
         // This is where we "return" since the foreground app has now changed
-        Log.i("DataCollector", "foreground app changed");
+        //Log.i("DataCollector", "foreground app changed");
     }
 }
 
