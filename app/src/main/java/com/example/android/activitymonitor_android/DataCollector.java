@@ -57,10 +57,10 @@ public class DataCollector extends IntentService {
         super.onDestroy();
     }
 
-    //TODO: implement observer
+    //TODO (low priority): implement observer
         //Possible use get context or refresh to receive app data
 
-
+    //TODO (low priority): cleaner way to do this?
     private String printForegroundTask() {
         String currentApp = null;
         if(android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.LOLLIPOP) {
@@ -88,35 +88,31 @@ public class DataCollector extends IntentService {
     }
 
     protected void onHandleIntent(Intent workIntent) {
-        Log.e("test", "reached");
-        String newTaskPackageName = "NULL";
-        String foregroundTaskPackageName = "NULL";
-        foregroundTaskPackageName = printForegroundTask();
+        Log.e("onHandleIntent", "reached");
 
-        /* check if usage stats is enabled */
+        /* check if usage stats is enabled. Make new function for this? */
         try {
             PackageManager packageManager = this.getPackageManager();
             ApplicationInfo applicationInfo = packageManager.getApplicationInfo(this.getPackageName(), 0);
             AppOpsManager appOpsManager = (AppOpsManager) this.getSystemService(Context.APP_OPS_SERVICE);
-            //int mode = appOpsManager.checkOpNoThrow(AppOpsManager.OPSTR_GET_USAGE_STATS, applicationInfo.uid, applicationInfo.packageName);
+            int mode = appOpsManager.checkOpNoThrow(AppOpsManager.OPSTR_GET_USAGE_STATS, applicationInfo.uid, applicationInfo.packageName);
             Log.e("usagestats", "is enabled");
 
         } catch (PackageManager.NameNotFoundException e) {
             Log.e("usagestats", "is not enabled");
         }
-        //TODO: only open settings if usage is NOT ENABLED. Above method is currently not working
+        //TODO: only open settings if usage is NOT ENABLED. Above method is currently not working.
         Intent intent = new Intent(Settings.ACTION_USAGE_ACCESS_SETTINGS);
         startActivity(intent);
 
+        //TODO: investigate any shortcomings with infinite while loop
         while(true) {
             printForegroundTask();
             try {
-                Thread.sleep(1000);
+                //TODO: write to dictionary on cycle. Maybe use a timer instead of sleep, or query the system time.
+                Thread.sleep(5000);
             }
             catch(Exception n) {}
-        }//while(newTaskPackageName.equals(foregroundTaskPackageName));
-
-        // This is where we "return" since the foreground app has now changed
-        //Log.e("DataCollector", "foreground app changed");
+        }
     }
 }
