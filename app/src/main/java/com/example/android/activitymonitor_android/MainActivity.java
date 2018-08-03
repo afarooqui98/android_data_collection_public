@@ -4,16 +4,18 @@ import android.app.ActivityManager;
 import android.content.Context;
 import android.content.Intent;
 import android.os.Bundle;
+import android.os.Handler;
 import android.support.v7.app.AppCompatActivity;
 import android.util.Log;
 
+import java.util.Calendar;
+import java.util.List;
 import java.util.Observable;
 import java.util.Observer;
 
-public class MainActivity extends AppCompatActivity implements Observer{
+public class MainActivity extends AppCompatActivity{
     Intent mServiceIntent;
     private DataCollector mDataCollector;
-    BaseApp myBase;
     Context ctx;
 
     public Context getCtx() {
@@ -26,16 +28,6 @@ public class MainActivity extends AppCompatActivity implements Observer{
         super.onCreate(savedInstanceState);
         ctx = this;
         setContentView(R.layout.activity_main);
-        mDataCollector = new DataCollector(getCtx());
-        mServiceIntent = new Intent(getCtx(), mDataCollector.getClass());
-
-        myBase = (BaseApp) getApplication();
-        myBase.getObserver().addObserver(this);
-
-        Log.i("MAINACT", "onCreate, Service about to start");
-        if (!isMyServiceRunning(DataCollector.class)) {
-            startService(mServiceIntent);
-        }
     }
 
     @Override
@@ -47,10 +39,6 @@ public class MainActivity extends AppCompatActivity implements Observer{
         else{
             Log.e("Test", "service running");
         }
-    }
-
-    public void update(Observable observable, Object data){
-        Log.e("Notification", myBase.getObserver().getValue());
     }
 
     //TODO: check if Service is running
@@ -66,7 +54,28 @@ public class MainActivity extends AppCompatActivity implements Observer{
 
     public void onPause(){
         super.onPause();
-        myBase.getObserver().setValue("After Value Changed!");
+        mDataCollector = new DataCollector(getCtx());
+        mServiceIntent = new Intent(getCtx(), mDataCollector.getClass());
+
+
+        Log.i("MAINACT", "onCreate, Service about to start");
+        if (!isMyServiceRunning(DataCollector.class)) {
+            startService(mServiceIntent);
+        }
+//
+//        myBase.getObserver().setValue("After Value Changed!");
+//        myBase.getObserver().addObserver(this);
+//
+//        Handler handler = new Handler();
+//        handler.postDelayed(new Runnable() {
+//            public void run() {
+//                ActivityManager actvityManager = (ActivityManager) ctx.getSystemService(ACTIVITY_SERVICE);
+//                List<ActivityManager.RunningAppProcessInfo> procInfos = actvityManager.getRunningAppProcesses();
+//                for(ActivityManager.RunningAppProcessInfo runningProInfo:procInfos){
+//                    Log.d("Running Processes", "()()"+runningProInfo.processName);
+//                }
+//            }
+//        }, 10000);
     }
 
     @Override
