@@ -1,10 +1,14 @@
 package com.example.android.activitymonitor_android;
 
 import android.app.ActivityManager;
+import android.app.AppOpsManager;
 import android.app.IntentService;
 import android.content.Intent;
 import android.content.Context;
+import android.content.pm.ApplicationInfo;
+import android.content.pm.PackageManager;
 import android.os.IBinder;
+import android.provider.Settings;
 import android.util.Log;
 import android.app.usage.UsageStatsManager;
 import android.app.usage.UsageStats;
@@ -58,11 +62,13 @@ public class DataCollector extends IntentService {
 
 
     private String printForegroundTask() {
-        String currentApp = "NULL";
+        String currentApp = null;
         if(android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.LOLLIPOP) {
             UsageStatsManager usm = (UsageStatsManager)this.getSystemService("usagestats");
             long time = System.currentTimeMillis();
             List<UsageStats> appList = usm.queryUsageStats(UsageStatsManager.INTERVAL_DAILY,  time - 1000*1000, time);
+            String appListSize = Integer.toString(appList.size());
+            Log.e("appList size", appListSize);
             if (appList != null && appList.size() > 0) {
                 SortedMap<Long, UsageStats> mySortedMap = new TreeMap<Long, UsageStats>();
                 for (UsageStats usageStats : appList) {
@@ -77,7 +83,6 @@ public class DataCollector extends IntentService {
             List<ActivityManager.RunningAppProcessInfo> tasks = am.getRunningAppProcesses();
             currentApp = tasks.get(0).processName;
         }
-
         Log.e("adapter", "Current App in foreground is: " + currentApp);
         return currentApp;
     }
@@ -87,12 +92,31 @@ public class DataCollector extends IntentService {
         String newTaskPackageName = "NULL";
         String foregroundTaskPackageName = "NULL";
         foregroundTaskPackageName = printForegroundTask();
-        do {
-            foregroundTaskPackageName = newTaskPackageName;
-            newTaskPackageName = printForegroundTask();
-        }while(newTaskPackageName.equals(foregroundTaskPackageName));
+
+        /* check if usage stats is enabled */
+        try {
+            PackageManager packageManager = this.getPackageManager();
+            ApplicationInfo applicationInfo = packageManager.getApplicationInfo(this.getPackageName(), 0);
+            AppOpsManager appOpsManager = (AppOpsManager) this.getSystemService(Context.APP_OPS_SERVICE);
+            //int mode = appOpsManager.checkOpNoThrow(AppOpsManager.OPSTR_GET_USAGE_STATS, applicationInfo.uid, applicationInfo.packageName);
+            Log.e("usagestats", "is enabled");
+
+        } catch (PackageManager.NameNotFoundException e) {
+            Log.e("usagestats", "is not enabled");
+        }
+        //TODO: only open settings if usage is NOT ENABLED. Above method is currently not working
+        Intent intent = new Intent(Settings.ACTION_USAGE_ACCESS_SETTINGS);
+        startActivity(intent);
+
+        while(true) {
+            printForegroundTask();
+            try {
+                Thread.sleep(1000);
+            }
+            catch(Exception n) {}
+        }//while(newTaskPackageName.equals(foregroundTaskPackageName));
 
         // This is where we "return" since the foreground app has now changed
-        Log.e("DataCollector", "foreground app changed");
+        //Log.e("DataCollector", "foreground app changed");
     }
 }
