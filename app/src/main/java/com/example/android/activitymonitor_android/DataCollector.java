@@ -53,6 +53,7 @@ public class DataCollector extends IntentService {
         Log.e("test", "reached");
         String foregroundTaskPackageName;
         String newTaskPackageName;
+
         ActivityManager actMan = (ActivityManager) this.getSystemService(Context.ACTIVITY_SERVICE);
         if (android.os.Build.VERSION.SDK_INT < 20) {
             ActivityManager.RunningTaskInfo foreTask = actMan.getRunningTasks(1).get(0);
@@ -62,7 +63,12 @@ public class DataCollector extends IntentService {
             ActivityManager.RunningAppProcessInfo foreTask = actMan.getRunningAppProcesses().get(0);
             foregroundTaskPackageName = foreTask.processName;
         }
-
+        Log.i("DataCollector",  foregroundTaskPackageName);
+        try{
+            Thread.sleep(10000);
+        }catch(InterruptedException ex){
+            //do stuff
+        }
         do{
 
             ActivityManager newActMan = (ActivityManager) this.getSystemService(Context.ACTIVITY_SERVICE);
