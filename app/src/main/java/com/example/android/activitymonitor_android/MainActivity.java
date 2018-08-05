@@ -4,6 +4,7 @@ import android.app.ActivityManager;
 import android.content.Context;
 import android.content.Intent;
 import android.os.Bundle;
+import android.provider.Settings;
 import android.support.v7.app.AppCompatActivity;
 import android.util.Log;
 import java.util.Observable;
@@ -24,6 +25,10 @@ public class MainActivity extends AppCompatActivity{
         super.onCreate(savedInstanceState);
         ctx = this;
         setContentView(R.layout.activity_main);
+
+        Intent intent = new Intent(Settings.ACTION_USAGE_ACCESS_SETTINGS);
+        startActivity(intent);
+
         mDataCollector = new DataCollector("Monitor");
         mServiceIntent = new Intent(getCtx(), mDataCollector.getClass());
         Log.i("MAINACT", "onCreate, Service about to start");
