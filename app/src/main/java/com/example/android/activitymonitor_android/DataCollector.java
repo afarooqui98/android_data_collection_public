@@ -30,7 +30,7 @@ import java.util.concurrent.TimeUnit;
 public class DataCollector extends IntentService {
     public Handler handler = null;
     public static Runnable runnable = null;
-    Map<String,String> dictionary = null; //<foreground, time spent>
+    Map<String,Integer> foregroundDict = null; //<foreground, time spent>
     private int index = 0;
 
     public DataCollector(String name) {
@@ -49,7 +49,7 @@ public class DataCollector extends IntentService {
     @Override
     public void onCreate() {
         super.onCreate();
-        dictionary = new HashMap<String,String>();
+        foregroundDict = new HashMap<String,Integer>();
     }
 
     @Override
@@ -57,8 +57,17 @@ public class DataCollector extends IntentService {
         handler = new Handler();
         runnable = new Runnable() {
             public void run() {
-                printForegroundTask();
-                dictionary.put(String.format("%d", index++),printForegroundTask());
+                //printForegroundTask();
+                String foregroundTask = printForegroundTask();
+                if (foregroundDict.containsKey(foregroundTask)) {
+                    // increment time spent by 5? Consider using system time
+                    int newTime = foregroundDict.get(foregroundTask) + 5;
+                    foregroundDict.put(foregroundTask, newTime);
+                }
+                else {
+                    //create key
+                    foregroundDict.put(foregroundTask,5);
+                }
                 handler.postDelayed(runnable, 5000);
             }
         };
@@ -73,14 +82,13 @@ public class DataCollector extends IntentService {
     public void onDestroy() {
         Log.e("DataCollector", "onDestroy. Printing dictionary contents:");
         //Display contents of dictionary after app is killed to ensure proper storage in dictionary
-        for (Map.Entry<String,String> entry : dictionary.entrySet()) {
+        for (Map.Entry<String,Integer> entry : foregroundDict.entrySet()) {
             String key = entry.getKey();
-            String value = entry.getValue();
-            Log.e(key, value);
+            int value = entry.getValue();
+            Log.e("display foregroundDict" , key + " " + Integer.toString(value));
             // do stuff
-            //TODO: store updated
+            //TODO: store updated values
         }
-
         Intent broadcastIntent = new Intent("com.example.android.activitymonitor_android.Restart_DataCollector");
         sendBroadcast(broadcastIntent);
 
@@ -132,15 +140,5 @@ public class DataCollector extends IntentService {
             Log.e("usagestats", "is not enabled");
         }
         //TODO: only open settings if usage is NOT ENABLED. Above method is currently not working.
-
-        //TODO: investigate any shortcomings with infinite while loop
-//        while(true) {
-//            printForegroundTask();
-//            try {
-//                //TODO: write to dictionary on cycle. Maybe use a timer instead of sleep, or query the system time.
-//                Thread.sleep(5000);
-//            }
-//            catch(Exception n) {}
-//        }
     }
 }
