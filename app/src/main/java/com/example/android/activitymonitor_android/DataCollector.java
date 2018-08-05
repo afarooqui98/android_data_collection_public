@@ -30,8 +30,8 @@ import java.util.concurrent.TimeUnit;
 public class DataCollector extends IntentService {
     public Handler handler = null;
     public static Runnable runnable = null;
-    Map<String,Integer> foregroundDict = null; //<foreground, time spent>
-    private int index = 0;
+    Map<String,Integer> foregroundDict = null; //<foregroundTask, time spent>
+    final int delay = 2000; // Delay between checks to foregroundTask
 
     public DataCollector(String name) {
         super(name);
@@ -60,20 +60,20 @@ public class DataCollector extends IntentService {
                 //printForegroundTask();
                 String foregroundTask = printForegroundTask();
                 if (foregroundDict.containsKey(foregroundTask)) {
-                    // increment time spent by 5? Consider using system time
-                    int newTime = foregroundDict.get(foregroundTask) + 5;
+                    //Todo: Consider using system time, and smaller time intervals: System.currentTimeMillis(), or something similar
+                    //increment time spent
+                    int newTime = foregroundDict.get(foregroundTask) + delay;
                     foregroundDict.put(foregroundTask, newTime);
                 }
                 else {
                     //create key
-                    foregroundDict.put(foregroundTask,5);
+                    foregroundDict.put(foregroundTask,delay);
                 }
-                handler.postDelayed(runnable, 5000);
+                handler.postDelayed(runnable, delay);
             }
         };
-        handler.postDelayed(runnable, 5000);
+        handler.postDelayed(runnable, delay); //TODO: what's this for?
 
-        //onHandleIntent(intent);
         return START_STICKY; //Will re-create after process is killed
 
     }
@@ -85,9 +85,8 @@ public class DataCollector extends IntentService {
         for (Map.Entry<String,Integer> entry : foregroundDict.entrySet()) {
             String key = entry.getKey();
             int value = entry.getValue();
-            Log.e("display foregroundDict" , key + " " + Integer.toString(value));
-            // do stuff
-            //TODO: store updated values
+            Log.e("display foregroundDict" , key + ", time spent: " + Integer.toString(value));
+            //TODO: Create a file (if it doesn't exist) and write values to it. DO NOTE: if the key already exists in the file, we want to update the key only.
         }
         Intent broadcastIntent = new Intent("com.example.android.activitymonitor_android.Restart_DataCollector");
         sendBroadcast(broadcastIntent);
@@ -110,6 +109,7 @@ public class DataCollector extends IntentService {
                 SortedMap<Long, UsageStats> mySortedMap = new TreeMap<Long, UsageStats>();
                 for (UsageStats usageStats : appList) {
                     timeInForeGround = usageStats.getTotalTimeInForeground();
+                    //TODO: see what we can do with getTotalTimeInForeground(). What does it actually return?
                     mySortedMap.put(usageStats.getLastTimeUsed(), usageStats);
                 }
                 if (mySortedMap != null && !mySortedMap.isEmpty()) {
