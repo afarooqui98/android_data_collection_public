@@ -30,7 +30,7 @@ import java.util.concurrent.TimeUnit;
 public class DataCollector extends IntentService {
     public Handler handler = null;
     public static Runnable runnable = null;
-    Map<String,String> dictionary = new HashMap<String,String>();
+    Map<String,String> dictionary = null; //<foreground, time spent>
     private int index = 0;
 
     public DataCollector(String name) {
@@ -49,12 +49,11 @@ public class DataCollector extends IntentService {
     @Override
     public void onCreate() {
         super.onCreate();
-        // TODO: Create/allocate space for the dictionary for storing application runtimes.
+        dictionary = new HashMap<String,String>();
     }
 
     @Override
     public int onStartCommand(Intent intent, int flags, int startId) {
-        //Track foreground here
         handler = new Handler();
         runnable = new Runnable() {
             public void run() {
@@ -72,15 +71,16 @@ public class DataCollector extends IntentService {
 
     @Override
     public void onDestroy() {
-
+        Log.e("DataCollector", "onDestroy. Printing dictionary contents:");
         //Display contents of dictionary after app is killed to ensure proper storage in dictionary
         for (Map.Entry<String,String> entry : dictionary.entrySet()) {
             String key = entry.getKey();
             String value = entry.getValue();
             Log.e(key, value);
             // do stuff
+            //TODO: store updated
         }
-        Log.i("DataCollector", "onDestroy");
+
         Intent broadcastIntent = new Intent("com.example.android.activitymonitor_android.Restart_DataCollector");
         sendBroadcast(broadcastIntent);
 
