@@ -57,7 +57,7 @@ public class DataCollector extends IntentService {
         super.onDestroy();
     }
 
-    //TODO (low priority): implement observer
+    //TODO (low priority): implement observer?
         //Possible use get context or refresh to receive app data
 
     //TODO (low priority): cleaner way to do this?
