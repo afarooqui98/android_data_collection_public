@@ -3,8 +3,10 @@ package com.example.android.activitymonitor_android;
 import android.app.ActivityManager;
 import android.app.AppOpsManager;
 import android.app.IntentService;
+import android.content.BroadcastReceiver;
 import android.content.Intent;
 import android.content.Context;
+import android.content.IntentFilter;
 import android.content.pm.ApplicationInfo;
 import android.content.pm.PackageManager;
 import android.os.Handler;
@@ -50,6 +52,25 @@ public class DataCollector extends IntentService {
     public void onCreate() {
         super.onCreate();
         foregroundDict = new HashMap<String,Integer>();
+
+        // Create an IntentFilter instance.
+        IntentFilter intentFilter = new IntentFilter();
+
+        // Add network connectivity change action.
+        intentFilter.addAction("com.example.android.activitymonitor_android.Restart_DataCollector");
+
+        // Set broadcast receiver priority.
+        intentFilter.setPriority(100);
+
+        // Create a network change broadcast receiver.
+        BroadcastRec_DataCollector br = new BroadcastRec_DataCollector();
+
+        // Register the broadcast receiver with the intent filter object.
+        registerReceiver(br, intentFilter);
+
+        Log.e("DataCollector", "Service onCreate: screenOnOffReceiver is registered.");
+
+        //TODO: load dictionary from file.
     }
 
     @Override
@@ -72,7 +93,7 @@ public class DataCollector extends IntentService {
                 handler.postDelayed(runnable, delay);
             }
         };
-        handler.postDelayed(runnable, delay); //TODO: what's this for?
+        handler.postDelayed(runnable, delay);
 
         return START_STICKY; //Will re-create after process is killed
 
@@ -88,7 +109,7 @@ public class DataCollector extends IntentService {
             Log.e("display foregroundDict" , key + ", time spent: " + Integer.toString(value));
             //TODO: Create a file (if it doesn't exist) and write values to it. DO NOTE: if the key already exists in the file, we want to update the key only.
         }
-        Intent broadcastIntent = new Intent("com.example.android.activitymonitor_android.Restart_DataCollector");
+        Intent broadcastIntent = new Intent("com.exmaple.android.activitymonitor_android.Restart_DataCollector");
         sendBroadcast(broadcastIntent);
 
         super.onDestroy();
@@ -109,7 +130,8 @@ public class DataCollector extends IntentService {
                 SortedMap<Long, UsageStats> mySortedMap = new TreeMap<Long, UsageStats>();
                 for (UsageStats usageStats : appList) {
                     timeInForeGround = usageStats.getTotalTimeInForeground();
-                    //TODO: see what we can do with getTotalTimeInForeground(). What does it actually return?
+                    //TODO: see what we can do with getTotalTimeInForeground(). What does it actually return? Time spent from...boot? Last use?
+                    //Log.e("time in foreground: ",usageStats.getPackageName() + ": " + timeInForeGround);
                     mySortedMap.put(usageStats.getLastTimeUsed(), usageStats);
                 }
                 if (mySortedMap != null && !mySortedMap.isEmpty()) {
