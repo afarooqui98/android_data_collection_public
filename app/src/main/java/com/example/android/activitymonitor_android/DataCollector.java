@@ -1,5 +1,6 @@
 package com.example.android.activitymonitor_android;
 
+import android.Manifest;
 import android.app.ActivityManager;
 import android.app.AppOpsManager;
 import android.app.IntentService;
@@ -10,10 +11,14 @@ import android.content.pm.PackageManager;
 import android.os.Handler;
 import android.os.IBinder;
 import android.provider.Settings;
+import android.support.v4.content.ContextCompat;
 import android.util.Log;
 import android.app.usage.UsageStatsManager;
 import android.app.usage.UsageStats;
 
+import java.io.FileOutputStream;
+import java.io.ObjectOutputStream;
+import java.text.Format;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -31,7 +36,7 @@ public class DataCollector extends IntentService {
     public Handler handler = null;
     public static Runnable runnable = null;
     Map<String,Integer> foregroundDict = null; //<foregroundTask, time spent>
-    final int delay = 2000; // Delay between checks to foregroundTask
+    final int delay = 10000; // Delay between checks to foregroundTask
 
     public DataCollector(String name) {
         super(name);
@@ -55,8 +60,8 @@ public class DataCollector extends IntentService {
     @Override
     public int onStartCommand(Intent intent, int flags, int startId) {
         handler = new Handler();
-        runnable = new Runnable() {
-            public void run() {
+        handler.postDelayed(new Runnable(){
+            public void run(){
                 //printForegroundTask();
                 String foregroundTask = printForegroundTask();
                 if (foregroundDict.containsKey(foregroundTask)) {
@@ -68,11 +73,10 @@ public class DataCollector extends IntentService {
                 else {
                     //create key
                     foregroundDict.put(foregroundTask,delay);
-                }
-                handler.postDelayed(runnable, delay);
+                }//do something
+                handler.postDelayed(this, delay);
             }
-        };
-        handler.postDelayed(runnable, delay); //TODO: what's this for?
+        }, delay);
 
         return START_STICKY; //Will re-create after process is killed
 
@@ -87,6 +91,14 @@ public class DataCollector extends IntentService {
             int value = entry.getValue();
             Log.e("display foregroundDict" , key + ", time spent: " + Integer.toString(value));
             //TODO: Create a file (if it doesn't exist) and write values to it. DO NOTE: if the key already exists in the file, we want to update the key only.
+            try {
+                FileOutputStream outputStream = openFileOutput("ForegroundFiles", Context.MODE_PRIVATE);
+                ObjectOutputStream oos = new ObjectOutputStream(outputStream);
+                oos.writeObject(foregroundDict);
+                oos.close();
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
         }
         Intent broadcastIntent = new Intent("com.example.android.activitymonitor_android.Restart_DataCollector");
         sendBroadcast(broadcastIntent);
@@ -100,6 +112,7 @@ public class DataCollector extends IntentService {
     //TODO (low priority): cleaner way to do this?
     private String printForegroundTask() {
         String currentApp = null;
+        Long timespent = null;
         long timeInForeGround = 500;
         if(android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.LOLLIPOP) {
             UsageStatsManager usm = (UsageStatsManager)this.getSystemService("usagestats");
@@ -108,12 +121,13 @@ public class DataCollector extends IntentService {
             if (appList != null && appList.size() > 0) {
                 SortedMap<Long, UsageStats> mySortedMap = new TreeMap<Long, UsageStats>();
                 for (UsageStats usageStats : appList) {
-                    timeInForeGround = usageStats.getTotalTimeInForeground();
                     //TODO: see what we can do with getTotalTimeInForeground(). What does it actually return?
                     mySortedMap.put(usageStats.getLastTimeUsed(), usageStats);
                 }
                 if (mySortedMap != null && !mySortedMap.isEmpty()) {
                     currentApp = mySortedMap.get(mySortedMap.lastKey()).getPackageName();
+                    timespent = mySortedMap.get(mySortedMap.lastKey()).getTotalTimeInForeground();
+
                 }
             }
         } else {
@@ -121,7 +135,7 @@ public class DataCollector extends IntentService {
             List<ActivityManager.RunningAppProcessInfo> tasks = am.getRunningAppProcesses();
             currentApp = tasks.get(0).processName;
         }
-        Log.e("adapter", "Current App in foreground is: " + currentApp);
+        Log.e("adapter", "Current App in foreground is: " + currentApp + " " + timespent);
         return currentApp;
     }
 
@@ -129,16 +143,16 @@ public class DataCollector extends IntentService {
 
         /* check if usage stats is enabled. Make new function for this? */
 
-        try {
-            PackageManager packageManager = this.getPackageManager();
-            ApplicationInfo applicationInfo = packageManager.getApplicationInfo(this.getPackageName(), 0);
-            AppOpsManager appOpsManager = (AppOpsManager) this.getSystemService(Context.APP_OPS_SERVICE);
-            int mode = appOpsManager.checkOpNoThrow(AppOpsManager.OPSTR_GET_USAGE_STATS, applicationInfo.uid, applicationInfo.packageName);
-            Log.e("usagestats", "is enabled");
-
-        } catch (PackageManager.NameNotFoundException e) {
-            Log.e("usagestats", "is not enabled");
-        }
+//        try {
+//            PackageManager packageManager = this.getPackageManager();
+//            ApplicationInfo applicationInfo = packageManager.getApplicationInfo(this.getPackageName(), 0);
+//            AppOpsManager appOpsManager = (AppOpsManager) this.getSystemService(Context.APP_OPS_SERVICE);
+//            int mode = appOpsManager.checkOpNoThrow(AppOpsManager.OPSTR_GET_USAGE_STATS, applicationInfo.uid, applicationInfo.packageName);
+//            Log.e("usagestats", "is enabled");
+//
+//        } catch (PackageManager.NameNotFoundException e) {
+//            Log.e("usagestats", "is not enabled");
+//        }
         //TODO: only open settings if usage is NOT ENABLED. Above method is currently not working.
     }
 }
