@@ -16,7 +16,10 @@ import android.util.Log;
 import android.app.usage.UsageStatsManager;
 import android.app.usage.UsageStats;
 
+import java.io.File;
+import java.io.FileInputStream;
 import java.io.FileOutputStream;
+import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
 import java.text.Format;
 import java.util.HashMap;
@@ -90,16 +93,8 @@ public class DataCollector extends IntentService {
             String key = entry.getKey();
             int value = entry.getValue();
             Log.e("display foregroundDict" , key + ", time spent: " + Integer.toString(value));
-            //TODO: Create a file (if it doesn't exist) and write values to it. DO NOTE: if the key already exists in the file, we want to update the key only.
-            try {
-                FileOutputStream outputStream = openFileOutput("ForegroundFiles", Context.MODE_PRIVATE);
-                ObjectOutputStream oos = new ObjectOutputStream(outputStream);
-                oos.writeObject(foregroundDict);
-                oos.close();
-            } catch (Exception e) {
-                e.printStackTrace();
-            }
         }
+        MapToFile();
         Intent broadcastIntent = new Intent("com.example.android.activitymonitor_android.Restart_DataCollector");
         sendBroadcast(broadcastIntent);
 
@@ -154,5 +149,44 @@ public class DataCollector extends IntentService {
 //            Log.e("usagestats", "is not enabled");
 //        }
         //TODO: only open settings if usage is NOT ENABLED. Above method is currently not working.
+    }
+
+    protected void MapToFile(){
+        File file = new File(getFilesDir() + "/map.ser");
+        try {
+            if(!file.exists()){
+                FileOutputStream fos = new FileOutputStream(file);
+                ObjectOutputStream oos = new ObjectOutputStream(fos);
+                oos.writeObject(foregroundDict);
+                oos.close();
+                Log.e("1", "MapToFile: file created first time");
+                // add something to the log
+            }
+            else {
+                FileInputStream fis = new FileInputStream(file);
+                ObjectInputStream ois = new ObjectInputStream(fis);
+                Map map_to_update = (Map)ois.readObject();
+                ois.close();
+                // iterate through and combine the two maps then write an updated map
+                for (Map.Entry<String, Integer> entry : foregroundDict.entrySet()) {
+                    String temp_key = entry.getKey();
+                    Integer  temp_val = entry.getValue();
+                    Integer to_add = (Integer) map_to_update.get(temp_key);
+                    if (to_add == null) {to_add = 0;}
+                    map_to_update.put(temp_key,temp_val + to_add);
+                    Log.d("key", temp_key);
+                    Log.d("temp", String.valueOf(temp_val));
+                    Log.d("add", String.valueOf(to_add));
+
+                }
+                FileOutputStream fos = new FileOutputStream(file,false); //look into this: should allow us to write over the existing file
+                ObjectOutputStream oos = new ObjectOutputStream(fos);
+                oos.writeObject(map_to_update);
+                oos.close();
+                Log.e("2", "MapToFile: file updated");
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
     }
 }
