@@ -2,14 +2,9 @@
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
     package="com.example.android.activitymonitor_android">
 
-<<<<<<< HEAD
-    <uses-permission android:name="android.permission.GET_TASKS" >
-    </uses-permission>
-
-=======
     <uses-permission android:name="android.permission.PACKAGE_USAGE_STATS"/>
     <!-- TODO: change package name -->
->>>>>>> ba88a946a63daf4c6ba946924c7602e132002849
+
     <application
         android:name=".BaseApp"
         android:allowBackup="true"

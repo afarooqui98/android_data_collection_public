@@ -16,21 +16,6 @@ import android.util.Log;
 import android.app.usage.UsageStatsManager;
 import android.app.usage.UsageStats;
 
-<<<<<<< HEAD
-import java.util.Calendar;
-import java.util.List;
-import java.util.Observable;
-import java.util.Observer;
-
-public class DataCollector extends Service implements Observer{
-    BaseApp myBase;
-
-    public DataCollector(Context appContext) {
-        super();
-        Log.i("DataCollector", "obj created");
-    }
-    public DataCollector() {
-=======
 import java.io.FileOutputStream;
 import java.io.ObjectOutputStream;
 import java.text.Format;
@@ -59,7 +44,6 @@ public class DataCollector extends IntentService {
 
     public DataCollector() {
         super("Default");
->>>>>>> ba88a946a63daf4c6ba946924c7602e132002849
     }
 
     @Override
@@ -79,13 +63,6 @@ public class DataCollector extends IntentService {
 
     @Override
     public int onStartCommand(Intent intent, int flags, int startId) {
-<<<<<<< HEAD
-        super.onStartCommand(intent, flags, startId);
-
-        myBase = (BaseApp) getApplication();
-        myBase.getObserver().addObserver(this);
-        onHandleWork(intent);
-=======
         handler = new Handler();
         handler.postDelayed(new Runnable(){
             public void run(){
@@ -105,7 +82,6 @@ public class DataCollector extends IntentService {
             }
         }, delay);
 
->>>>>>> ba88a946a63daf4c6ba946924c7602e132002849
         return START_STICKY; //Will re-create after process is killed
     }
 
@@ -134,55 +110,7 @@ public class DataCollector extends IntentService {
     }
 
     //TODO (low priority): implement observer
-        //Possible use get context or refresh to receive app data
-<<<<<<< HEAD
-    protected void onHandleWork(Intent workIntent) {
-        Log.e("DataCollector", "onHandleWork");
-//        String foregroundTaskPackageName;
-//        String newTaskPackageName;
-//        ActivityManager actMan = (ActivityManager) this.getSystemService(Context.ACTIVITY_SERVICE);
-//        if (android.os.Build.VERSION.SDK_INT < 20) {
-//            ActivityManager.RunningTaskInfo foreTask = actMan.getRunningTasks(1).get(0);
-//            foregroundTaskPackageName = foreTask.topActivity.getPackageName();
-//        }
-//        else {
-//            ActivityManager.RunningAppProcessInfo foreTask = actMan.getRunningAppProcesses().get(0);
-//            foregroundTaskPackageName = foreTask.processName;
-//        }
-//        // this is the polling implementation: couldn't find a viable way of doing it without polling
-//
-//        do{
-//            // introduce some type of time delay here
-//
-//            if (android.os.Build.VERSION.SDK_INT < 20) {
-//                ActivityManager.RunningTaskInfo foreTask = actMan.getRunningTasks(1).get(0);
-//                newTaskPackageName = foreTask.topActivity.getPackageName();
-//            }
-//            else {
-//                ActivityManager.RunningAppProcessInfo foreTask = actMan.getRunningAppProcesses().get(0);
-//                newTaskPackageName = foreTask.processName;
-//            }
-//            Log.i("DataCollector", "went through loop");
-//        }while(!newTaskPackageName.equals(foregroundTaskPackageName));
 
-
-        myBase.getObserver().setValue("After Value Changed!");
-        myBase.getObserver().addObserver(this);
-
-        Handler handler = new Handler();
-        handler.postDelayed(new Runnable() {
-            public void run() {
-                ActivityManager actvityManager = (ActivityManager) myBase.getSystemService(ACTIVITY_SERVICE);
-                List<ActivityManager.RunningAppProcessInfo> procInfos = actvityManager.getRunningAppProcesses();
-                for(ActivityManager.RunningAppProcessInfo runningProInfo:procInfos){
-                    Log.d("Running Processes", "()()"+runningProInfo.processName);
-                }
-            }
-        }, 10000);
-
-        // This is where we "return" since the foreground app has now changed
-        //Log.i("DataCollector", "foreground app changed");
-=======
 
     //TODO (low priority): cleaner way to do this?
     private String printForegroundTask() {
@@ -202,7 +130,6 @@ public class DataCollector extends IntentService {
                 if (mySortedMap != null && !mySortedMap.isEmpty()) {
                     currentApp = mySortedMap.get(mySortedMap.lastKey()).getPackageName();
                     timespent = mySortedMap.get(mySortedMap.lastKey()).getTotalTimeInForeground();
-
                 }
             }
         } else {
@@ -229,7 +156,6 @@ public class DataCollector extends IntentService {
 //            Log.e("usagestats", "is not enabled");
 //        }
         //TODO: only open settings if usage is NOT ENABLED. Above method is currently not working.
->>>>>>> ba88a946a63daf4c6ba946924c7602e132002849
     }
 }
 

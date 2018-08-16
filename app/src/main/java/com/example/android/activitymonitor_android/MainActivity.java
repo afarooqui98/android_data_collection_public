@@ -6,33 +6,19 @@ import android.content.Context;
 import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.os.Bundle;
-<<<<<<< HEAD
-import android.os.Handler;
-=======
 import android.provider.Settings;
 import android.support.v4.app.ActivityCompat;
 import android.support.v4.content.ContextCompat;
->>>>>>> ba88a946a63daf4c6ba946924c7602e132002849
 import android.support.v7.app.AppCompatActivity;
 import android.util.Log;
 import java.util.Observable;
 
-<<<<<<< HEAD
-import java.util.Calendar;
-import java.util.List;
-import java.util.Observable;
-import java.util.Observer;
-
-public class MainActivity extends AppCompatActivity{
-    Intent mServiceIntent;
-    private DataCollector mDataCollector;
-=======
 public class MainActivity extends AppCompatActivity{
     Intent mServiceIntent;
     private DataCollector mDataCollector;
     private final int MY_PERMISSION_REQUEST_PACKAGE_USAGE_STATS=1;
 
->>>>>>> ba88a946a63daf4c6ba946924c7602e132002849
+
     Context ctx;
 
     public Context getCtx() {
@@ -45,8 +31,7 @@ public class MainActivity extends AppCompatActivity{
         super.onCreate(savedInstanceState);
         ctx = this;
         setContentView(R.layout.activity_main);
-<<<<<<< HEAD
-=======
+
         //lines that are commented are supposed to check for permissions, DO NOT WORK
 //        if (ContextCompat.checkSelfPermission(this, Manifest.permission.PACKAGE_USAGE_STATS)
 //                != PackageManager.PERMISSION_GRANTED) {
@@ -72,8 +57,6 @@ public class MainActivity extends AppCompatActivity{
         if (!isMyServiceRunning(DataCollector.class)) {
             startService(mServiceIntent);
         }
-
->>>>>>> ba88a946a63daf4c6ba946924c7602e132002849
     }
 
     @Override
@@ -129,7 +112,7 @@ public class MainActivity extends AppCompatActivity{
 
     public void onPause(){
         super.onPause();
-        mDataCollector = new DataCollector(getCtx());
+        mDataCollector = new DataCollector("Monitor");
         mServiceIntent = new Intent(getCtx(), mDataCollector.getClass());
 
 
