@@ -51,9 +51,10 @@ public class DataCollector extends IntentService {
         return null;
     }
 
-    public void update(Observable observable, Object data){
-        Log.e("Notification", myBase.getObserver().getValue());
-    }
+    //public void update(Observable observable, Object data){
+    //    Log.e("Notification", myBase.getObserver().getValue());
+    //}
+
 
     @Override
     public void onCreate() {
@@ -81,7 +82,6 @@ public class DataCollector extends IntentService {
                 handler.postDelayed(this, delay);
             }
         }, delay);
-
         return START_STICKY; //Will re-create after process is killed
     }
 
@@ -111,7 +111,6 @@ public class DataCollector extends IntentService {
 
     //TODO (low priority): implement observer
 
-
     //TODO (low priority): cleaner way to do this?
     private String printForegroundTask() {
         String currentApp = null;
@@ -140,6 +139,7 @@ public class DataCollector extends IntentService {
         Log.e("adapter", "Current App in foreground is: " + currentApp + " " + timespent);
         return currentApp;
     }
+
 
     protected void onHandleIntent(Intent workIntent) {
 
