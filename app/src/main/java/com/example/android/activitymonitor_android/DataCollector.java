@@ -22,7 +22,9 @@ import java.io.FileOutputStream;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
 import java.text.Format;
+import java.util.Collections;
 import java.util.HashMap;
+import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.SortedMap;
@@ -38,7 +40,7 @@ import java.util.concurrent.TimeUnit;
 public class DataCollector extends IntentService {
     public Handler handler = null;
     public static Runnable runnable = null;
-    Map<String,Integer> foregroundDict = null; //<foregroundTask, time spent>
+    Map<String,Long> foregroundDict = null; //<foregroundTask, time spent>
     final int delay = 10000; // Delay between checks to foregroundTask
 
     public DataCollector(String name) {
@@ -57,7 +59,7 @@ public class DataCollector extends IntentService {
     @Override
     public void onCreate() {
         super.onCreate();
-        foregroundDict = new HashMap<String,Integer>();
+        foregroundDict = new HashMap<String,Long>();
     }
 
     @Override
@@ -66,17 +68,26 @@ public class DataCollector extends IntentService {
         handler.postDelayed(new Runnable(){
             public void run(){
                 //printForegroundTask();
-                String foregroundTask = printForegroundTask();
+                // TODO: Detect when the foreground app changes and update the time of the app we just left
+                Map<String,Long> lastTwo =  getLastTwoForegroundTasks();
+                for (Map.Entry<String,Long> entry : lastTwo.entrySet()) {
+                    String key = entry.getKey();
+                    long value = entry.getValue();
+                    Log.e("display lastTwo" , key + ", time spent: " + Long.toString(value));
+                }
+                // String foregroundTask = printForegroundTask();
+                /*
                 if (foregroundDict.containsKey(foregroundTask)) {
                     //Todo: Consider using system time, and smaller time intervals: System.currentTimeMillis(), or something similar
                     //increment time spent
-                    int newTime = foregroundDict.get(foregroundTask) + delay;
+                    long newTime = foregroundDict.get(foregroundTask) + delay;
                     foregroundDict.put(foregroundTask, newTime);
                 }
                 else {
                     //create key
                     foregroundDict.put(foregroundTask,delay);
                 }//do something
+                */
                 handler.postDelayed(this, delay);
             }
         }, delay);
@@ -89,10 +100,10 @@ public class DataCollector extends IntentService {
     public void onDestroy() {
         Log.e("DataCollector", "onDestroy. Printing dictionary contents:");
         //Display contents of dictionary after app is killed to ensure proper storage in dictionary
-        for (Map.Entry<String,Integer> entry : foregroundDict.entrySet()) {
+        for (Map.Entry<String,Long> entry : foregroundDict.entrySet()) {
             String key = entry.getKey();
-            int value = entry.getValue();
-            Log.e("display foregroundDict" , key + ", time spent: " + Integer.toString(value));
+            long value = entry.getValue();
+            Log.e("display foregroundDict" , key + ", time spent: " + Long.toString(value));
         }
         MapToFile();
         Intent broadcastIntent = new Intent("com.example.android.activitymonitor_android.Restart_DataCollector");
@@ -104,11 +115,12 @@ public class DataCollector extends IntentService {
     //TODO (low priority): implement observer
         //Possible use get context or refresh to receive app data
 
-    //TODO (low priority): cleaner way to do this?
-    private String printForegroundTask() {
+    // Returns a dictionary with current app first and the previous foreground app along with their usage times
+    private Map<String,Long> getLastTwoForegroundTasks() {
         String currentApp = null;
         Long timespent = null;
         long timeInForeGround = 500;
+        Map<String,Long> previousTwoApps = new LinkedHashMap<String,Long>();
         if(android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.LOLLIPOP) {
             UsageStatsManager usm = (UsageStatsManager)this.getSystemService("usagestats");
             long time = System.currentTimeMillis(); //attempting to find total foreground time for the application in question
@@ -122,16 +134,24 @@ public class DataCollector extends IntentService {
                 if (mySortedMap != null && !mySortedMap.isEmpty()) {
                     currentApp = mySortedMap.get(mySortedMap.lastKey()).getPackageName();
                     timespent = mySortedMap.get(mySortedMap.lastKey()).getTotalTimeInForeground();
-
+                    Log.e("adapter", "Current App in foreground is: " + currentApp + " " + timespent);
+                    SortedMap<Long, UsageStats> tailless = mySortedMap.headMap(mySortedMap.lastKey());
+                    String previousApp = tailless.get(tailless.lastKey()).getPackageName();
+                    long previoustimespent = tailless.get(tailless.lastKey()).getTotalTimeInForeground();
+                    Log.e("adapter", "Previous app in foreground was: " + previousApp + " " + previoustimespent);
+                    previousTwoApps.put(currentApp,timespent);
+                    previousTwoApps.put(previousApp,previoustimespent);
+                    return previousTwoApps;
                 }
             }
         } else {
+            //Todo: get a dictionary instead of just the processName
             ActivityManager am = (ActivityManager)this.getSystemService(Context.ACTIVITY_SERVICE);
             List<ActivityManager.RunningAppProcessInfo> tasks = am.getRunningAppProcesses();
             currentApp = tasks.get(0).processName;
         }
-        Log.e("adapter", "Current App in foreground is: " + currentApp + " " + timespent);
-        return currentApp;
+        return previousTwoApps;
+       // return currentApp;
     }
 
     protected void onHandleIntent(Intent workIntent) {
@@ -168,9 +188,9 @@ public class DataCollector extends IntentService {
                 Map map_to_update = (Map)ois.readObject();
                 ois.close();
                 // iterate through and combine the two maps then write an updated map
-                for (Map.Entry<String, Integer> entry : foregroundDict.entrySet()) {
+                for (Map.Entry<String, Long> entry : foregroundDict.entrySet()) {
                     String temp_key = entry.getKey();
-                    Integer  temp_val = entry.getValue();
+                    Long  temp_val = entry.getValue();
                     Integer to_add = (Integer) map_to_update.get(temp_key);
                     if (to_add == null) {to_add = 0;}
                     map_to_update.put(temp_key,temp_val + to_add);
