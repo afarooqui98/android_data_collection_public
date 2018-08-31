@@ -59,7 +59,7 @@ public class DataCollector extends IntentService {
     public Handler handler = null;
     public static Runnable runnable = null;
     Map<String,Long> foregroundDict = null; //<foregroundTask, time spent>
-    final int delay = 10000; // Delay between checks to foregroundTask
+    final int delay = 5000; // Delay between checks to foregroundTask
 
     public DataCollector(String name) {
         super(name);

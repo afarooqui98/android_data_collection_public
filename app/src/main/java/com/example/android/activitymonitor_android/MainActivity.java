@@ -26,7 +26,6 @@ public class MainActivity extends AppCompatActivity{
         return ctx;
     }
 
-
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -39,13 +38,7 @@ public class MainActivity extends AppCompatActivity{
             startActivity(intent);
         }
 
-        mDataCollector = new DataCollector("Monitor");
-        mServiceIntent = new Intent(getCtx(), mDataCollector.getClass());
-        Log.i("MAINACT", "onCreate, Service about to start");
-        if (!isMyServiceRunning(DataCollector.class)) {
-            startService(mServiceIntent);
-        }
-
+        StartService();
     }
 
     @Override
@@ -88,16 +81,7 @@ public class MainActivity extends AppCompatActivity{
         }
     }
 
-    //TODO: check if Service is running
-    private boolean isMyServiceRunning(Class<?> serviceClass) {
-        ActivityManager manager = (ActivityManager) getSystemService(Context.ACTIVITY_SERVICE);
-        for (ActivityManager.RunningServiceInfo service : manager.getRunningServices(Integer.MAX_VALUE)) {
-            if (serviceClass.getName().equals(service.service.getClassName())) {
-                return true;
-            }
-        }
-        return false;
-    }
+
 
     @Override
     protected void onDestroy() {
@@ -121,5 +105,25 @@ public class MainActivity extends AppCompatActivity{
         } catch (PackageManager.NameNotFoundException e) {
             return false;
         }
+    }
+
+    // If the service is not running, start it.
+    private void StartService() {
+        mDataCollector = new DataCollector("Monitor");
+        mServiceIntent = new Intent(getCtx(), mDataCollector.getClass());
+        Log.i("MAINACT", "onCreate, Service about to start");
+        if (!isMyServiceRunning(DataCollector.class)) {
+            startService(mServiceIntent);
+        }
+    }
+
+    private boolean isMyServiceRunning(Class<?> serviceClass) {
+        ActivityManager manager = (ActivityManager) getSystemService(Context.ACTIVITY_SERVICE);
+        for (ActivityManager.RunningServiceInfo service : manager.getRunningServices(Integer.MAX_VALUE)) {
+            if (serviceClass.getName().equals(service.service.getClassName())) {
+                return true;
+            }
+        }
+        return false;
     }
 }
