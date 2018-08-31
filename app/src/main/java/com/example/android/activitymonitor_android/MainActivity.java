@@ -2,8 +2,10 @@ package com.example.android.activitymonitor_android;
 
 import android.Manifest;
 import android.app.ActivityManager;
+import android.app.AppOpsManager;
 import android.content.Context;
 import android.content.Intent;
+import android.content.pm.ApplicationInfo;
 import android.content.pm.PackageManager;
 import android.os.Bundle;
 import android.provider.Settings;
@@ -45,9 +47,11 @@ public class MainActivity extends AppCompatActivity{
 //                startService(mServiceIntent);
 //            }
 //        }
-
-        Intent intent = new Intent(Settings.ACTION_USAGE_ACCESS_SETTINGS);
-        startActivity(intent);
+        if (!isUsageStatsGranted()) {
+            Intent intent = new Intent(Settings.ACTION_USAGE_ACCESS_SETTINGS);
+            startActivity(intent);
+            //TODO: pause here till intent is closed
+        }
 
         mDataCollector = new DataCollector("Monitor");
         mServiceIntent = new Intent(getCtx(), mDataCollector.getClass());
@@ -114,5 +118,22 @@ public class MainActivity extends AppCompatActivity{
         stopService(mServiceIntent);
         Log.i("MAINACT", "onDestroy");
         super.onDestroy();
+    }
+
+    private boolean isUsageStatsGranted() {
+        try {
+            PackageManager packageManager = getPackageManager();
+            ApplicationInfo applicationInfo = packageManager.getApplicationInfo(getPackageName(), 0);
+            AppOpsManager appOpsManager = (AppOpsManager) getSystemService(Context.APP_OPS_SERVICE);
+            int mode = 0;
+            if (android.os.Build.VERSION.SDK_INT > android.os.Build.VERSION_CODES.KITKAT) {
+                mode = appOpsManager.checkOpNoThrow(AppOpsManager.OPSTR_GET_USAGE_STATS,
+                        applicationInfo.uid, applicationInfo.packageName);
+            }
+            return (mode == AppOpsManager.MODE_ALLOWED);
+
+        } catch (PackageManager.NameNotFoundException e) {
+            return false;
+        }
     }
 }
