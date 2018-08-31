@@ -70,22 +70,27 @@ public class DataCollector extends IntentService {
                 //printForegroundTask();
                 // TODO: Detect when the foreground app changes and update the time of the app we just left
                 Map<String,Long> lastTwo =  getLastTwoForegroundTasks();
+                //printing Last Two activities
                 for (Map.Entry<String,Long> entry : lastTwo.entrySet()) {
                     String key = entry.getKey();
                     long value = entry.getValue();
                     Log.e("display lastTwo" , key + ", time spent: " + Long.toString(value));
                 }
+
+                // Write previously ended activity to dictionary
+                String prevTask = "" + lastTwo.keySet().toArray()[1];
+                Long prevTime = lastTwo.get(prevTask);
+
                 // String foregroundTask = printForegroundTask();
-                /*
-                if (foregroundDict.containsKey(foregroundTask)) {
+
+                if (foregroundDict.containsKey(prevTask)) {
                     //Todo: Consider using system time, and smaller time intervals: System.currentTimeMillis(), or something similar
                     //increment time spent
-                    long newTime = foregroundDict.get(foregroundTask) + delay;
-                    foregroundDict.put(foregroundTask, newTime);
+                    foregroundDict.put(prevTask, prevTime);
                 }
                 else {
                     //create key
-                    foregroundDict.put(foregroundTask,delay);
+                    foregroundDict.put(prevTask, prevTime);
                 }//do something
                 */
                 handler.postDelayed(this, delay);
@@ -114,7 +119,7 @@ public class DataCollector extends IntentService {
     //TODO (low priority): implement observer?
         //Possible use get context or refresh to receive app data
 
-    // Returns a dictionary with current app first and the previous foreground app along with their usage times
+    // Returns a dictionary with current app first and then the previous foreground app along with their usage times
     private Map<String,Long> getLastTwoForegroundTasks() {
         String currentApp = null;
         Long timespent = null;
