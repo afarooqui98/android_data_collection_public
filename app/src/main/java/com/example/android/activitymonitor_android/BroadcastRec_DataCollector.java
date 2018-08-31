@@ -8,7 +8,7 @@ import android.util.Log;
 public class BroadcastRec_DataCollector extends BroadcastReceiver {
     @Override
     public void onReceive(Context context, Intent intent) {
-        Log.i("BroadcastReceiver", "Restarting DataCollector Service");
+        Log.e("BroadcastReceiver", "Restarting DataCollector Service");
         context.startService(new Intent(context, DataCollector.class));
     }
 }

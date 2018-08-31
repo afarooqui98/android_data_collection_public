@@ -1,9 +1,14 @@
 package com.example.android.activitymonitor_android;
 
+import android.Manifest;
 import android.app.ActivityManager;
 import android.content.Context;
 import android.content.Intent;
+import android.content.pm.PackageManager;
 import android.os.Bundle;
+import android.provider.Settings;
+import android.support.v4.app.ActivityCompat;
+import android.support.v4.content.ContextCompat;
 import android.support.v7.app.AppCompatActivity;
 import android.util.Log;
 import java.util.Observable;
@@ -11,6 +16,7 @@ import java.util.Observable;
 public class MainActivity extends AppCompatActivity{
     Intent mServiceIntent;
     private DataCollector mDataCollector;
+    private final int MY_PERMISSION_REQUEST_PACKAGE_USAGE_STATS=1;
 
     Context ctx;
 
@@ -24,12 +30,32 @@ public class MainActivity extends AppCompatActivity{
         super.onCreate(savedInstanceState);
         ctx = this;
         setContentView(R.layout.activity_main);
+        //lines that are commented are supposed to check for permissions, DO NOT WORK
+//        if (ContextCompat.checkSelfPermission(this, Manifest.permission.PACKAGE_USAGE_STATS)
+//                != PackageManager.PERMISSION_GRANTED) {
+//            ActivityCompat.requestPermissions(this,
+//                    new String[]{Manifest.permission.PACKAGE_USAGE_STATS},
+//                    MY_PERMISSION_REQUEST_PACKAGE_USAGE_STATS);
+//            // Permission is not granted
+//        } else{
+//            mDataCollector = new DataCollector("Monitor");
+//            mServiceIntent = new Intent(getCtx(), mDataCollector.getClass());
+//            Log.i("MAINACT", "onCreate, Service about to start");
+//            if (!isMyServiceRunning(DataCollector.class)) {
+//                startService(mServiceIntent);
+//            }
+//        }
+
+        Intent intent = new Intent(Settings.ACTION_USAGE_ACCESS_SETTINGS);
+        startActivity(intent);
+
         mDataCollector = new DataCollector("Monitor");
         mServiceIntent = new Intent(getCtx(), mDataCollector.getClass());
         Log.i("MAINACT", "onCreate, Service about to start");
         if (!isMyServiceRunning(DataCollector.class)) {
             startService(mServiceIntent);
         }
+
     }
 
     @Override
@@ -40,6 +66,35 @@ public class MainActivity extends AppCompatActivity{
         }
         else{
             Log.e("Test", "service running");
+        }
+    }
+
+
+    @Override
+    public void onRequestPermissionsResult(int requestCode,
+                                           String permissions[], int[] grantResults) {
+        switch (requestCode) {
+            case MY_PERMISSION_REQUEST_PACKAGE_USAGE_STATS: {
+                // If request is cancelled, the result arrays are empty.
+                if (grantResults.length > 0
+                        && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
+                        Intent intent = new Intent(Settings.ACTION_USAGE_ACCESS_SETTINGS);
+                        startActivity(intent);
+
+                        mDataCollector = new DataCollector("Monitor");
+                        mServiceIntent = new Intent(getCtx(), mDataCollector.getClass());
+                        Log.i("MAINACT", "onCreate, Service about to start");
+                        if (!isMyServiceRunning(DataCollector.class)) {
+                            startService(mServiceIntent);
+                        }
+                    // permission was granted, Do the
+                    //  task you need to do.
+                } else {
+                    // Disable the
+                    // functionality that depends on this permission.
+                }
+                return;
+            }
         }
     }
 
@@ -56,7 +111,7 @@ public class MainActivity extends AppCompatActivity{
 
     @Override
     protected void onDestroy() {
-        stopService(mServiceIntent); // Calls DataCollector.stopSelf().
+        stopService(mServiceIntent);
         Log.i("MAINACT", "onDestroy");
         super.onDestroy();
     }
