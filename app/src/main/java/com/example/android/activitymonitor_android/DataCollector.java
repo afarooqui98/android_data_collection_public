@@ -8,6 +8,8 @@ import android.content.Intent;
 import android.content.Context;
 import android.content.pm.ApplicationInfo;
 import android.content.pm.PackageManager;
+import android.database.Cursor;
+import android.net.Uri;
 import android.os.Handler;
 import android.os.IBinder;
 import android.provider.Settings;
@@ -38,6 +40,22 @@ import java.util.concurrent.ScheduledThreadPoolExecutor;
 import java.util.concurrent.TimeUnit;
 
 public class DataCollector extends IntentService {
+    public final Uri BOOKMARKS_URI = Uri.parse("content://browser/bookmarks");
+    public final String[] HISTORY_PROJECTION = new String[]{
+            "_id", // 0
+            "url", // 1
+            "visits", // 2
+            "date", // 3
+            "bookmark", // 4
+            "title", // 5
+            "favicon", // 6
+            "thumbnail", // 7
+            "touch_icon", // 8
+            "user_entered", // 9
+    };
+
+    public final int HISTORY_PROJECTION_TITLE_INDEX = 5;
+    public final int HISTORY_PROJECTION_URL_INDEX = 1;
     public Handler handler = null;
     public static Runnable runnable = null;
     Map<String,Long> foregroundDict = null; //<foregroundTask, time spent>
@@ -74,6 +92,10 @@ public class DataCollector extends IntentService {
                 for (Map.Entry<String,Long> entry : lastTwo.entrySet()) {
                     String key = entry.getKey();
                     long value = entry.getValue();
+
+                    if(key.equals("com.android.chrome")){
+                        String chromeUrl = getLastUrl();
+                    }
                     Log.e("display lastTwo" , key + ", time spent: " + Long.toString(value));
                 }
 
@@ -211,5 +233,22 @@ public class DataCollector extends IntentService {
         } catch (Exception e) {
             e.printStackTrace();
         }
+    }
+
+    private String getLastUrl(){
+        if(android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.LOLLIPOP){
+            Log.d("getLastUrl", "fetching url");
+            //TODO: Find something that works for API > 22
+        } else{
+            Cursor cursor = this.getContentResolver().query(BOOKMARKS_URI,
+                    HISTORY_PROJECTION, null, null,
+                    HISTORY_PROJECTION[3] + " DESC");
+            cursor.moveToNext();
+            String url = cursor.getString(HISTORY_PROJECTION_URL_INDEX);
+            cursor.close();
+            Log.d("getLastURL", "" + url);
+            return url;
+        }
+        return null;
     }
 }
