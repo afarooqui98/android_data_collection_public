@@ -84,7 +84,6 @@ public class DataCollector extends IntentService {
                 // String foregroundTask = printForegroundTask();
 
                 if (foregroundDict.containsKey(prevTask)) {
-                    //Todo: Consider using system time, and smaller time intervals: System.currentTimeMillis(), or something similar
                     //increment time spent
                     foregroundDict.put(prevTask, prevTime);
                 }
@@ -115,14 +114,10 @@ public class DataCollector extends IntentService {
         super.onDestroy();
     }
 
-    //TODO (low priority): implement observer?
-        //Possible use get context or refresh to receive app data
-
     // Returns a dictionary with current app first and then the previous foreground app along with their usage times
     private Map<String,Long> getLastTwoForegroundTasks() {
         String currentApp = null;
         Long timespent = null;
-        long timeInForeGround = 500;
         Map<String,Long> previousTwoApps = new LinkedHashMap<String,Long>();
         if(android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.LOLLIPOP) {
             UsageStatsManager usm = (UsageStatsManager)this.getSystemService("usagestats");
@@ -131,7 +126,6 @@ public class DataCollector extends IntentService {
             if (appList != null && appList.size() > 0) {
                 SortedMap<Long, UsageStats> mySortedMap = new TreeMap<Long, UsageStats>();
                 for (UsageStats usageStats : appList) {
-                    //TODO: see what we can do with getTotalTimeInForeground(). What does it actually return?
                     mySortedMap.put(usageStats.getLastTimeUsed(), usageStats);
                 }
                 if (mySortedMap != null && !mySortedMap.isEmpty()) {
@@ -160,17 +154,6 @@ public class DataCollector extends IntentService {
     protected void onHandleIntent(Intent workIntent) {
 
         /* check if usage stats is enabled. Make new function for this? */
-
-//        try {
-//            PackageManager packageManager = this.getPackageManager();
-//            ApplicationInfo applicationInfo = packageManager.getApplicationInfo(this.getPackageName(), 0);
-//            AppOpsManager appOpsManager = (AppOpsManager) this.getSystemService(Context.APP_OPS_SERVICE);
-//            int mode = appOpsManager.checkOpNoThrow(AppOpsManager.OPSTR_GET_USAGE_STATS, applicationInfo.uid, applicationInfo.packageName);
-//            Log.e("usagestats", "is enabled");
-//
-//        } catch (PackageManager.NameNotFoundException e) {
-//            Log.e("usagestats", "is not enabled");
-//        }
         //TODO: only open settings if usage is NOT ENABLED. Above method is currently not working.
     }
 

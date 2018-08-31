@@ -32,25 +32,11 @@ public class MainActivity extends AppCompatActivity{
         super.onCreate(savedInstanceState);
         ctx = this;
         setContentView(R.layout.activity_main);
-        //lines that are commented are supposed to check for permissions, DO NOT WORK
-//        if (ContextCompat.checkSelfPermission(this, Manifest.permission.PACKAGE_USAGE_STATS)
-//                != PackageManager.PERMISSION_GRANTED) {
-//            ActivityCompat.requestPermissions(this,
-//                    new String[]{Manifest.permission.PACKAGE_USAGE_STATS},
-//                    MY_PERMISSION_REQUEST_PACKAGE_USAGE_STATS);
-//            // Permission is not granted
-//        } else{
-//            mDataCollector = new DataCollector("Monitor");
-//            mServiceIntent = new Intent(getCtx(), mDataCollector.getClass());
-//            Log.i("MAINACT", "onCreate, Service about to start");
-//            if (!isMyServiceRunning(DataCollector.class)) {
-//                startService(mServiceIntent);
-//            }
-//        }
-        if (!isUsageStatsGranted()) {
+
+        if (!isPackageUsageStatsGranted()) {
+            //TODO: Create a new thread and wait for it, then check for permissions again.
             Intent intent = new Intent(Settings.ACTION_USAGE_ACCESS_SETTINGS);
             startActivity(intent);
-            //TODO: pause here till intent is closed
         }
 
         mDataCollector = new DataCollector("Monitor");
@@ -120,7 +106,7 @@ public class MainActivity extends AppCompatActivity{
         super.onDestroy();
     }
 
-    private boolean isUsageStatsGranted() {
+    private boolean isPackageUsageStatsGranted() {
         try {
             PackageManager packageManager = getPackageManager();
             ApplicationInfo applicationInfo = packageManager.getApplicationInfo(getPackageName(), 0);
