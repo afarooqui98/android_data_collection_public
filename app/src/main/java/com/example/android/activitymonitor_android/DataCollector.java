@@ -92,7 +92,6 @@ public class DataCollector extends IntentService {
                     //create key
                     foregroundDict.put(prevTask, prevTime);
                 }//do something
-                */
                 handler.postDelayed(this, delay);
             }
         }, delay);
