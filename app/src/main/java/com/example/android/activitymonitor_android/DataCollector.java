@@ -46,7 +46,6 @@ public class DataCollector extends IntentService {
         super.onStartCommand(intent, flags, startId);
         //onHandleIntent(intent);
         return START_STICKY; //Will re-create after process is killed
-
     }
 
     @Override
